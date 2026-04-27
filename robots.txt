@@ -1,0 +1,27 @@
+# robots.txt - O Olho Digital
+# Proteção contra indexação desnecessária e scrapers
+
+User-agent: *
+Allow: /
+Disallow: /images/backup/
+Disallow: /*.json$
+Disallow: /*.xml$
+
+# Prevenir acesso a arquivos sensíveis
+Disallow: /.htaccess
+Disallow: /.htpasswd
+Disallow: /config/
+Disallow: /admin/
+
+# Slowdown para bots agressivos
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: MJ12bot
+Crawl-delay: 10
+
+# Sitemap (se aplicável no futuro)
+Sitemap: https://oolhodigital.com/sitemap.xml

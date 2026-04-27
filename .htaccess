@@ -1,0 +1,154 @@
+# ============================================================================
+# PROTEÇÃO DE SEGURANÇA - O OLHO DIGITAL
+# Arquivo .htaccess para HostGator
+# ============================================================================
+
+# Habilitar mod_rewrite
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+</IfModule>
+
+# ============================================================================
+# 1. PROTEÇÃO CONTRA ACESSO A ARQUIVOS E DIRETÓRIOS SENSÍVEIS
+# ============================================================================
+
+# Bloquear acesso a arquivos .htaccess
+<FilesMatch "^\.htaccess">
+  Order allow,deny
+  Deny from all
+</FilesMatch>
+
+# Bloquear acesso a .htpasswd e outros arquivos de configuração
+<FilesMatch "^\.ht">
+  Order allow,deny
+  Deny from all
+</FilesMatch>
+
+# Bloquear acesso a backup files
+<FilesMatch "\.(bak|backup|swp|swo|~|\.old)$">
+  Order allow,deny
+  Deny from all
+</FilesMatch>
+
+# Bloquear listagem de diretórios
+Options -Indexes
+
+# ============================================================================
+# 2. PROTEÇÃO CONTRA EDIÇÃO E UPLOAD NÃO AUTORIZADO
+# ============================================================================
+
+# Bloquear upload de arquivos executáveis
+<FilesMatch "\.(php|exe|js~|phtml|php3|php4|php5|phps|pht|shtml|jsp|asp|aspx|py|cgi|pl|sh|bat|com|scr|vbs|jar)$">
+  Order allow,deny
+  Deny from all
+</FilesMatch>
+
+# Proteger arquivos críticos contra leitura e escrita não autorizadas
+<FilesMatch "\.(html|css|json|xml)$">
+  Order allow,deny
+  Allow from all
+</FilesMatch>
+
+# ============================================================================
+# 3. HEADERS DE SEGURANÇA
+# ============================================================================
+
+<IfModule mod_headers.c>
+  # Prevenir clickjacking
+  Header always set X-Frame-Options "SAMEORIGIN"
+  
+  # Prevenir MIME sniffing
+  Header always set X-Content-Type-Options "nosniff"
+  
+  # Habilitar XSS Protection
+  Header always set X-XSS-Protection "1; mode=block"
+  
+  # Política de Segurança de Conteúdo
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-ancestors 'self'"
+  
+  # Referrer Policy
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  
+  # Remover header X-Powered-By
+  Header unset X-Powered-By
+  Header always unset X-Powered-By
+</IfModule>
+
+# ============================================================================
+# 4. PROTEÇÃO CONTRA HOTLINKING (USO NÃO AUTORIZADO DE IMAGENS)
+# ============================================================================
+
+<IfModule mod_rewrite.c>
+  RewriteCond %{HTTP_REFERER} !^$
+  RewriteCond %{HTTP_REFERER} !^https?://(www\.)?oolhodigital\.com [NC]
+  RewriteCond %{REQUEST_FILENAME} \.(jpg|jpeg|png|gif|svg|webp)$ [NC]
+  RewriteRule .* - [F]
+</IfModule>
+
+# ============================================================================
+# 5. PROTEÇÃO CONTRA ACESSO A ARQUIVOS DE ORIGEM/CONFIG
+# ============================================================================
+
+# Bloquear acesso a arquivos de origem e configuração
+<FilesMatch "^(\.env|config\.|database\.|settings\.)">
+  Order allow,deny
+  Deny from all
+</FilesMatch>
+
+# ============================================================================
+# 6. COMPRESSÃO GZIP (MELHORAR PERFORMANCE E INTEGRIDADE)
+# ============================================================================
+
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json
+  AddEncodingByType gzip .html .css .js .json .xml
+</IfModule>
+
+# ============================================================================
+# 7. CACHE CONTROL
+# ============================================================================
+
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/html "access 1 hour"
+  ExpiresByType text/css "access 30 days"
+  ExpiresByType image/jpeg "access 30 days"
+  ExpiresByType image/png "access 30 days"
+  ExpiresByType image/gif "access 30 days"
+  ExpiresByType application/javascript "access 30 days"
+  ExpiresByType font/truetype "access 1 year"
+  ExpiresByType font/opentype "access 1 year"
+</IfModule>
+
+# ============================================================================
+# 8. PROTEÇÃO CONTRA SQL INJECTION E XSS (PARA QUALQUER FORMULÁRIO FUTURO)
+# ============================================================================
+
+<IfModule mod_rewrite.c>
+  # Bloquear SQL injection
+  RewriteCond %{QUERY_STRING} (\*|\'|\"|\.\.|\/\/|\-\-|;|\||<|>|\[|\]|&|\^|%|%20) [NC]
+  RewriteRule .* - [F]
+</IfModule>
+
+# ============================================================================
+# 9. DENY ACCESS A BOTS MALICIOSOS (OPCIONAL)
+# ============================================================================
+
+# Bloquear bots conhecidos de varredura
+SetEnvIfNoCase User-Agent ".*sqlmap.*" deny
+SetEnvIfNoCase User-Agent ".*nikto.*" deny
+SetEnvIfNoCase User-Agent ".*nmap.*" deny
+SetEnvIfNoCase User-Agent ".*masscan.*" deny
+
+<RequireAll>
+  Require all granted
+  Require env !deny
+</RequireAll>
+
+# ============================================================================
+# FIM DO ARQUIVO .HTACCESS
+# ============================================================================
+# Último atualizado: 27 de abril de 2026
+# Contato: contato@oolhodigital.com
+# ============================================================================
